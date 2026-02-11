@@ -1,20 +1,25 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import auth, student, admin  # Add 'admin' here
 
-app = FastAPI(title="CampusIQ")
+from app.routes import auth_routes, student_routes, admin_routes
 
+app = FastAPI(title="CampusIQ Backend")
+
+# CORS (allow frontend / test html)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
-app.include_router(student.router)
-app.include_router(admin.router)  # Add this line
+# Routers
+app.include_router(auth_routes.router, prefix="/api/auth", tags=["Auth"])
+app.include_router(student_routes.router, prefix="/api/student", tags=["Student"])
+app.include_router(admin_routes.router, prefix="/api/admin", tags=["Admin"])
+
 
 @app.get("/")
-async def root():
-    return {"message": "CampusIQ API is online", "status": "ready"}
+def root():
+    return {"message": "CampusIQ Backend Running"}

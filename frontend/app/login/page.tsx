@@ -27,38 +27,60 @@ export default function LoginPage() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError('')
+  e.preventDefault()
+  setIsLoading(true)
+  setError("")
 
+  try {
+    const response = await api.post("/auth/login", {
+      email: formData.email,
+      password: formData.password,
+    })
+
+    const { access_token } = response.data
+
+    localStorage.setItem("token", access_token)
+
+    // Check if student
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-
-      const response = await api.post('/auth/login', {
-        username: formData.email,
-        email: formData.email,
-        password: formData.password
+      const studentRes = await api.get("/student/me", {
+        headers: { Authorization: `Bearer ${access_token}` }
       })
 
-      const { access_token } = response.data
+      const studentData = studentRes.data
 
-      localStorage.setItem('token', access_token)
-      localStorage.setItem('role', role)
+      localStorage.setItem("role", "student")
 
-      if (role === 'admin') {
-        router.push('/admin/stats')
+      // profile completion check
+      const profileCompleted =
+        studentData.branch &&
+        studentData.year &&
+        studentData.skills &&
+        studentData.skills.length > 0
+
+      if (!profileCompleted) {
+        router.push("/student/profile")
       } else {
-        localStorage.setItem('user_email', formData.email)
-        router.push('/dashboard')
+        router.push("/dashboard")
       }
 
-    } catch (err: any) {
-      console.error("Login Error:", err)
-      setError(err.response?.data?.detail || 'Invalid credentials. Please try again.')
-    } finally {
-      setIsLoading(false)
+      return
+    } catch (err) {
+      // if student/me fails, try admin
     }
+
+    // Check if admin
+    localStorage.setItem("role", "admin")
+    router.push("/admin/stats")
+
+  } catch (err: any) {
+    console.error("Login Error:", err)
+    setError(err.response?.data?.detail || "Invalid credentials. Please try again.")
+  } finally {
+    setIsLoading(false)
   }
+}
+
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-white p-4 relative overflow-hidden">

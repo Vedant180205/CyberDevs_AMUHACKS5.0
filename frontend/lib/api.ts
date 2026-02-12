@@ -45,8 +45,15 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             // Redirect to login page if authorized
             if (typeof window !== 'undefined') {
+                const role = localStorage.getItem('role');
                 localStorage.removeItem('token'); // Clear invalid token
-                window.location.href = '/login';
+                localStorage.removeItem('role');
+
+                if (role === 'admin') {
+                    window.location.href = '/admin/login';
+                } else {
+                    window.location.href = '/login';
+                }
             }
         }
         return Promise.reject(error);

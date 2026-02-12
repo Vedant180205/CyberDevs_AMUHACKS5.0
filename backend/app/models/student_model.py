@@ -8,6 +8,10 @@ class StudentSignup(BaseModel):
     password: str
     year: str
     branch: str
+    cgpa: float
+    skills: List[str]
+    linkedin_url: Optional[str] = None
+    github_url: Optional[str] = None
 
 
 class StudentLogin(BaseModel):
@@ -31,6 +35,8 @@ class StudentProfile(BaseModel):
     prs_breakdown: Optional[Dict] = None
 
     github_analysis: Optional[Dict] = None
+    resume_analysis: Optional[Dict] = None
+    ats_score: int = 0
 
 
 class StudentUpdate(BaseModel):
@@ -39,3 +45,6 @@ class StudentUpdate(BaseModel):
 
     linkedin_url: Optional[str] = None
     github_url: Optional[str] = None
+    
+    resume_analysis: Optional[Dict] = None
+    ats_score: Optional[int] = None

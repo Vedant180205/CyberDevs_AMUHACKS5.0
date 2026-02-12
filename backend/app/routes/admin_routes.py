@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends
 from app.database import students_collection
 from app.utils.auth_dependency import get_current_user
+from app.services.groq_service import generate_batch_recommendations
 
 router = APIRouter()
 
@@ -254,3 +255,62 @@ async def training_recommendations(current_user=Depends(get_current_user)):
         "recommendations_count": len(recommendations),
         "recommendations": recommendations
     }
+
+@router.get("/skills-analytics")
+async def skills_analytics(current_user=Depends(get_current_user)):
+    """
+    Aggregates top skills by branch and year.
+    """
+    pipeline = [
+        {"$unwind": "$skills"},
+        {
+            "$group": {
+                "_id": {"skill": {"$toLower": "$skills"}},
+                "count": {"$sum": 1}
+            }
+        },
+        {"$sort": {"count": -1}},
+        {"$limit": 20}
+    ]
+
+    top_skills = await students_collection.aggregate(pipeline).to_list(length=20)
+    
+    # Format for frontend
+    formatted_skills = [{"skill": item["_id"]["skill"], "count": item["count"]} for item in top_skills]
+    
+    return {"top_skills": formatted_skills}
+
+@router.post("/ai-recommendations")
+async def ai_recommendations(current_user=Depends(get_current_user)):
+    """
+    Generates AI-powered training recommendations based on aggregated batch data.
+    """
+    # 1. Aggregate batch statistics
+    pipeline = [
+        {
+            "$group": {
+                "_id": {"branch": "$branch", "year": "$year"},
+                "avg_prs": {"$avg": "$prs_score"},
+                "avg_github": {"$avg": "$github_analysis.github_score"},
+                "avg_cgpa": {"$avg": "$cgpa"},
+                "student_count": {"$sum": 1}
+            }
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "target_group": {"$concat": ["$_id.year", " ", "$_id.branch"]},
+                "avg_prs": {"$round": ["$avg_prs", 2]},
+                "avg_github": {"$round": ["$avg_github", 2]},
+                "avg_cgpa": {"$round": ["$avg_cgpa", 2]},
+                "student_count": 1
+            }
+        }
+    ]
+
+    batch_stats = await students_collection.aggregate(pipeline).to_list(length=50)
+
+    # 2. Call Groq Service
+    recommendation_data = generate_batch_recommendations(batch_stats)
+
+    return recommendation_data

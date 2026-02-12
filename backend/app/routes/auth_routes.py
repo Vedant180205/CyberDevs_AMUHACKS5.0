@@ -16,14 +16,17 @@ async def signup(student: StudentSignup):
     student_dict = student.dict()
     student_dict["password"] = hash_password(student.password)
     student_dict["prs_score"] = 0
-    student_dict["skills"] = []
-    student_dict["linkedin_url"] = None
-    student_dict["github_url"] = None
-    student_dict["cgpa"] = None
-
+    # skills, cgpa, linkedin, github come from model now
+    
+    # Store initial analysis structure
+    student_dict["github_analysis"] = None
+    
     await students_collection.insert_one(student_dict)
+    
+    # Auto-login after signup
+    token = create_access_token({"email": student.email, "role": "student"})
 
-    return {"message": "Student registered successfully"}
+    return {"message": "Student registered successfully", "access_token": token, "token_type": "bearer"}
 
 
 @router.post("/login")
@@ -35,6 +38,7 @@ async def login(student: StudentLogin):
     if not verify_password(student.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_access_token({"email": user["email"], "role": "student"})
+    role = user.get("role", "student")
+    token = create_access_token({"email": user["email"], "role": role})
 
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer", "role": role}

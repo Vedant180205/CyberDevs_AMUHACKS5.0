@@ -284,3 +284,64 @@ CRITICAL INSTRUCTIONS:
             "error": err_str
         }
 
+
+def generate_batch_recommendations(batch_stats: list) -> dict:
+    """
+    Analyzes aggregated batch statistics using Groq to provide training recommendations.
+    """
+    prompt = f"""
+    You are an expert Education Data Analyst and Technical Trainer.
+    Analyze the following aggregated performance data for student batches (Year/Branch) and suggest specific interventions.
+
+    **Batch Data:**
+    {json.dumps(batch_stats, indent=2)}
+
+    **Instructions:**
+    1. Identify batches with low Average PRS (< 50), low GitHub scores, or specific skill gaps.
+    2. Suggest 3-5 high-impact interventions (Bootcamps, Workshops, Mentorships).
+    3. For each recommendation, specify:
+       - **Target Group**: e.g., "Third Year CSE"
+       - **Module/Topic**: e.g., "Advanced React & Redux", "Data Structures in Python"
+       - **Expected Outcome**: e.g., "Improvement in coding round clearance"
+       - **Priority**: High/Medium/Low
+
+    **Response Format (Strict JSON):**
+    {{
+        "analysis_summary": "Overall observation...",
+        "recommendations": [
+            {{
+                "target_batch": "string",
+                "action_title": "string",
+                "reason": "string",
+                "priority": "High|Medium|Low"
+            }}
+        ]
+    }}
+    
+    IMPORTANT: Respond ONLY with valid JSON. No markdown, no code blocks, just the JSON object.
+    """
+
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model=GROQ_MODEL,
+            temperature=0.4,
+            max_tokens=1500,
+        )
+        response_text = chat_completion.choices[0].message.content.strip()
+        
+        try:
+            return json.loads(response_text)
+        except json.JSONDecodeError:
+            if "```json" in response_text:
+                json_str = response_text.split("```json")[1].split("```")[0].strip()
+                return json.loads(json_str)
+            elif "```" in response_text:
+                json_str = response_text.split("```")[1].split("```")[0].strip()
+                return json.loads(json_str)
+            else:
+                 return {"error": "Invalid JSON from Groq", "raw": response_text}
+
+    except Exception as e:
+        print(f"Groq Batch Analysis Error: {e}")
+        return {"error": "Failed to generate recommendations", "details": str(e)}

@@ -25,6 +25,8 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
+import { ProfileEditModal } from '@/components/profile-edit-modal'
+
 export default function DashboardPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(true)
@@ -77,8 +79,11 @@ export default function DashboardPage() {
                 prs_level: res.data.prs_level,
                 breakdown: res.data.prs_breakdown
             })
-        } catch (error) {
+            alert(`✅ PRS Calculated: ${res.data.prs_score}/100`)
+        } catch (error: any) {
             console.error('PRS calculation error:', error)
+            const msg = error.response?.data?.detail || "Failed to calculate PRS. Ensure GitHub analysis is complete."
+            alert(`❌ Error: ${msg}`)
         } finally {
             setAnalyzingPRS(false)
         }
@@ -90,6 +95,8 @@ export default function DashboardPage() {
             const res = await api.post('/api/student/analyze/github')
             setGithubData(res.data.github_analysis)
             alert('✅ GitHub analysis completed successfully!')
+            // Refresh dashboard to potentially enable PRS if it was blocked
+            fetchDashboardData()
         } catch (error: any) {
             console.error('GitHub analysis error:', error)
             const errorMessage = error.response?.data?.detail || 'Failed to analyze GitHub profile. Please try again later.'
@@ -159,14 +166,20 @@ export default function DashboardPage() {
                             {studentData?.branch} • Year {studentData?.year} • CGPA {studentData?.cgpa}
                         </p>
                     </div>
-                    <Button
-                        variant="outline"
-                        onClick={handleLogout}
-                        className="gap-2"
-                    >
-                        <LogOut className="h-4 w-4" />
-                        Logout
-                    </Button>
+                    <div className="flex items-center gap-3">
+                        <ProfileEditModal
+                            studentData={studentData}
+                            onUpdate={fetchDashboardData}
+                        />
+                        <Button
+                            variant="outline"
+                            onClick={handleLogout}
+                            className="gap-2"
+                        >
+                            <LogOut className="h-4 w-4" />
+                            Logout
+                        </Button>
+                    </div>
                 </motion.div>
 
                 {/* PRS Score Card */}

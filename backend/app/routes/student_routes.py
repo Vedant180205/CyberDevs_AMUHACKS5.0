@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from datetime import datetime, timedelta, timezone
 
 from app.database import students_collection
@@ -6,6 +6,7 @@ from app.utils.auth_dependency import get_current_user
 from app.models.student_model import StudentUpdate
 from app.services.github_service import analyze_github_profile
 from app.services.prs_service import calculate_prs
+from app.services.resume_service import analyze_resume
 from app.database import companies_collection
 from app.services.company_match_service import match_student_with_companies
 
@@ -80,6 +81,41 @@ async def analyze_my_github(user=Depends(get_current_user)):
     )
 
     return {"message": "GitHub analysis completed", "github_analysis": analysis}
+
+
+@router.post("/analyze/resume")
+async def analyze_student_resume(
+    file: UploadFile = File(...),
+    user=Depends(get_current_user)
+):
+    email = user["email"]
+    
+    # Read file bytes
+    try:
+        contents = await file.read()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid file")
+
+    # Analyze with Gemini
+    analysis_result = analyze_resume(contents, file.content_type)
+    
+    # Prepare update data
+    ats_score = analysis_result.get("ats_score", 0)
+    
+    # Update student profile
+    await students_collection.update_one(
+        {"email": email},
+        {"$set": {
+            "resume_analysis": analysis_result,
+            "ats_score": ats_score
+        }}
+    )
+
+    return {
+        "message": "Resume analyzed successfully",
+        "ats_score": ats_score,
+        "analysis": analysis_result
+    }
 
 
 @router.post("/calculate-prs")

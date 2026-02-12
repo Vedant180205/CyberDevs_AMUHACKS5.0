@@ -10,7 +10,7 @@ def calculate_prs(student: dict):
 
     cgpa = student.get("cgpa")
     skills = student.get("skills", [])
-    github_analysis = student.get("github_analysis", {})
+    github_analysis = student.get("github_analysis") or {}
 
     # ---------------- GitHub Score (0-25) ----------------
     github_score_raw = github_analysis.get("github_score", 0)  # 0-100
@@ -97,18 +97,30 @@ def calculate_prs(student: dict):
     else:
         language_score = 0
 
+    # ---------------- Resume ATS Score (0-20) ----------------
+    ats_score_raw = student.get("ats_score", 0) # 0-100
+    ats_score_component = int((ats_score_raw / 100) * 20)
+
     # ---------------- Final PRS (out of 100) ----------------
+    # Updated Total Weightage:
+    # GitHub: 25
+    # Skills: 15
+    # CGPA: 10
+    # Activity: 10
+    # Project Diversity: 10
+    # Language Diversity: 10
+    # ATS Score: 20
+    # TOTAL: 100 (No scaling needed if all components sum to 100)
+
     prs_total = (
         github_score +
         skills_score +
         cgpa_score +
         activity_score +
         diversity_score +
-        language_score
+        language_score +
+        ats_score_component
     )
-
-    # scale to 100 (because currently we total 25+15+10+10+10+10 = 80)
-    prs_scaled = int((prs_total / 80) * 100)
 
     breakdown = {
         "github_score_25": github_score,
@@ -117,21 +129,22 @@ def calculate_prs(student: dict):
         "activity_score_10": activity_score,
         "project_diversity_score_10": diversity_score,
         "language_diversity_score_10": language_score,
-        "raw_total_80": prs_total
+        "resume_ats_score_20": ats_score_component,
+        "raw_total_100": prs_total
     }
 
     # ---------------- PRS LEVEL ----------------
-    if prs_scaled >= 80:
+    if prs_total >= 80:
         prs_level = "Excellent"
-    elif prs_scaled >= 60:
+    elif prs_total >= 60:
         prs_level = "Good"
-    elif prs_scaled >= 40:
+    elif prs_total >= 40:
         prs_level = "Average"
     else:
         prs_level = "Poor"
 
     return {
-        "prs_score": prs_scaled,
+        "prs_score": prs_total,
         "prs_level": prs_level,
         "breakdown": breakdown
     }

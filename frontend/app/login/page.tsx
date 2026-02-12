@@ -2,13 +2,12 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import api from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertCircle, ArrowRight, Loader2, GraduationCap, ShieldCheck } from 'lucide-react'
+import { AlertCircle, ArrowRight, Loader2 } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -16,7 +15,6 @@ export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [role, setRole] = useState<'student' | 'admin'>('student')
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -27,59 +25,61 @@ export default function LoginPage() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
-  setIsLoading(true)
-  setError("")
+    e.preventDefault()
+    setIsLoading(true)
+    setError("")
 
-  try {
-    const response = await api.post("/auth/login", {
-      email: formData.email,
-      password: formData.password,
-    })
-
-    const { access_token } = response.data
-
-    localStorage.setItem("token", access_token)
-
-    // Check if student
     try {
-      const studentRes = await api.get("/student/me", {
-        headers: { Authorization: `Bearer ${access_token}` }
+      const response = await api.post("/api/auth/login", {
+        email: formData.email,
+        password: formData.password,
       })
 
-      const studentData = studentRes.data
+      const { access_token } = response.data
 
-      localStorage.setItem("role", "student")
+      // Use auth utilities
+      const { setAuthToken, setUserRole } = await import('@/lib/auth')
+      setAuthToken(access_token)
 
-      // profile completion check
-      const profileCompleted =
-        studentData.branch &&
-        studentData.year &&
-        studentData.skills &&
-        studentData.skills.length > 0
+      // Check if student
+      try {
+        const studentRes = await api.get("/api/student/me", {
+          headers: { Authorization: `Bearer ${access_token}` }
+        })
 
-      if (!profileCompleted) {
-        router.push("/student/profile")
-      } else {
-        router.push("/dashboard")
+        const studentData = studentRes.data
+
+        setUserRole("student")
+
+        // profile completion check
+        const profileCompleted =
+          studentData.branch &&
+          studentData.year &&
+          studentData.skills &&
+          studentData.skills.length > 0
+
+        if (!profileCompleted) {
+          router.push("/student/profile")
+        } else {
+          router.push("/dashboard")
+        }
+
+        return
+      } catch (err) {
+        // if student/me fails, try admin
       }
 
-      return
-    } catch (err) {
-      // if student/me fails, try admin
+      // Check if admin
+      setUserRole("admin")
+      router.push("/admin/stats")
+
+    } catch (err: any) {
+      console.error("Login Error:", err)
+      setError(err.response?.data?.detail || "Invalid credentials. Please try again.")
+    } finally {
+      setIsLoading(false)
     }
-
-    // Check if admin
-    localStorage.setItem("role", "admin")
-    router.push("/admin/stats")
-
-  } catch (err: any) {
-    console.error("Login Error:", err)
-    setError(err.response?.data?.detail || "Invalid credentials. Please try again.")
-  } finally {
-    setIsLoading(false)
   }
-}
 
 
   return (
@@ -127,37 +127,6 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent className="pt-6 px-6">
-            {/* Animated Role Toggle */}
-            <div className="relative flex p-1 bg-gray-100 rounded-lg mb-6">
-              <motion.div
-                className="absolute inset-y-1 rounded-md bg-white shadow-sm"
-                layoutId="active-pill"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                style={{
-                  width: "calc(50% - 4px)",
-                  left: role === 'student' ? 4 : "calc(50%)"
-                }}
-              />
-
-              <button
-                onClick={() => setRole('student')}
-                className={`flex-1 relative z-10 flex items-center justify-center gap-2 py-2 text-sm font-medium transition-colors duration-200 ${role === 'student' ? 'text-blue-700' : 'text-gray-500 hover:text-gray-900'
-                  }`}
-              >
-                <GraduationCap className="w-4 h-4" />
-                Student
-              </button>
-
-              <button
-                onClick={() => setRole('admin')}
-                className={`flex-1 relative z-10 flex items-center justify-center gap-2 py-2 text-sm font-medium transition-colors duration-200 ${role === 'admin' ? 'text-indigo-700' : 'text-gray-500 hover:text-gray-900'
-                  }`}
-              >
-                <ShieldCheck className="w-4 h-4" />
-                Administrator
-              </button>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="email" className="text-gray-700 font-medium text-sm">Email Address</Label>
@@ -165,7 +134,7 @@ export default function LoginPage() {
                   id="email"
                   name="email"
                   type="email"
-                  placeholder={role === 'student' ? "student@college.edu" : "admin@campusiq.com"}
+                  placeholder="your.email@college.edu"
                   required
                   value={formData.email}
                   onChange={handleChange}
@@ -222,24 +191,11 @@ export default function LoginPage() {
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-3 bg-gray-50/50 py-4 border-t border-gray-100">
-            {role === 'student' ? (
-              <div className="text-center w-full space-y-2">
-                <p className="text-xs text-gray-500">
-                  New to CampusIQ?
-                </p>
-                <Link href="/onboard" className="block w-full">
-                  <Button variant="outline" className="w-full border-blue-200 text-blue-700 hover:bg-blue-50 h-9 text-sm font-medium hover:border-blue-300">
-                    Create Student Account
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="text-center w-full">
-                <p className="text-xs text-gray-400">
-                  Authorized personnel only. Access is monitored.
-                </p>
-              </div>
-            )}
+            <div className="text-center w-full">
+              <p className="text-xs text-gray-400">
+                Secure authentication powered by CampusIQ
+              </p>
+            </div>
           </CardFooter>
         </Card>
 

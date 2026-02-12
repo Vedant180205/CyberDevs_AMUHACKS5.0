@@ -12,6 +12,7 @@ JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
 if not MONGO_URI or not DB_NAME:
     raise Exception("MONGO_URI or DB_NAME missing in .env")

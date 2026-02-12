@@ -29,7 +29,7 @@ By continuously evaluating students through **AI-driven Resume Analysis**, **Git
 
 | Feature | Magic Behind It |
 |-------|----------------|
-| ⚡ **Resume Intelligence** | Powered by **Google Gemini 2.0 Flash Vision**. Scans PDFs/Images to extract skills & calculate ATS scores instantly. |
+| ⚡ **Resume Intelligence** | Powered by **Google Gemini Flash Latest Vision**. Scans PDFs/Images to extract skills & calculate ATS scores instantly. |
 | 🧠 **Strategic AI Insights** | **Groq LPU** analyzes batch-level data to generate targeted training interventions (e.g., "Schedule React Workshop for Batch '24"). |
 | 📊 **Placement Readiness Score (PRS)** | A proprietary algorithm that combines CGPA, GitHub activity, Assessment scores, and Resume quality into a single 0-100 metric. |
 | 🕵️ **GitHub Deep Dive** | Automated analysis of student code repositories to verify technical claims and project complexity. |

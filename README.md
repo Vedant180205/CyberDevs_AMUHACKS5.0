@@ -2,7 +2,8 @@
 
 # 🚀 **CampusIQ**
 ### *The Future of Placement Readiness Intelligence*
-<img width="1024" height="300" alt="CampusIQ Dashboard" src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop" />
+<img width="904" height="320" alt="image" src="https://github.com/user-attachments/assets/068ba9e8-1efa-41a6-95e9-9fb74fe44dea" />
+
 
 > **AI-Powered Career Acceleration • Real-Time Skill Gap Analysis • Automated Resume Optimization**
 

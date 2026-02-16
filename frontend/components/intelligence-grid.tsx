@@ -2,17 +2,17 @@
 
 export function IntelligenceGrid() {
   return (
-    <section id="features" className="relative py-20 bg-white">
+    <section id="features" className="relative py-20 bg-white dark:bg-slate-950 transition-colors duration-500">
       <div className="max-w-6xl mx-auto px-4">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+          <div className="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-semibold mb-4 border border-blue-200 dark:border-blue-800">
             SPLIT-BRAIN ARCHITECTURE
           </div>
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-slate-50 mb-4">
             Intelligence Powered by Speed <span className="block text-transparent bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text">and Depth</span>
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 dark:text-slate-400">
             Groq handles instant scoring while Gemini provides deep career analysis. The perfect balance for campus placement readiness.
           </p>
         </div>
@@ -21,7 +21,7 @@ export function IntelligenceGrid() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Speed Engine - Groq */}
           <div className="group">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-200 hover:shadow-xl transition-all duration-300">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-2xl p-8 border border-blue-200 dark:border-blue-900 hover:shadow-xl dark:hover:shadow-blue-900/20 transition-all duration-300">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -29,11 +29,11 @@ export function IntelligenceGrid() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-gray-900">Speed Engine</h3>
-                  <p className="text-sm text-blue-600 font-semibold">Powered by Groq</p>
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-slate-50">Speed Engine</h3>
+                  <p className="text-sm text-blue-600 dark:text-blue-400 font-semibold">Powered by Groq</p>
                 </div>
               </div>
-              <p className="text-gray-700 mb-6">
+              <p className="text-gray-700 dark:text-slate-300 mb-6">
                 Instant feedback for real-time student readiness. Lightning-fast scoring across all evaluation modules.
               </p>
               <div className="space-y-4">
@@ -44,8 +44,8 @@ export function IntelligenceGrid() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Instant PRS Scoring</p>
-                    <p className="text-sm text-gray-600">Real-time recalculation on every profile update</p>
+                    <p className="font-medium text-gray-900 dark:text-slate-50">Instant PRS Scoring</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">Real-time recalculation on every profile update</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -55,8 +55,8 @@ export function IntelligenceGrid() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Weekly Micro-Tasks</p>
-                    <p className="text-sm text-gray-600">5-minute actionable goals every Monday</p>
+                    <p className="font-medium text-gray-900 dark:text-slate-50">Weekly Micro-Tasks</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">5-minute actionable goals every Monday</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -66,8 +66,8 @@ export function IntelligenceGrid() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Instant Notifications</p>
-                    <p className="text-sm text-gray-600">Get alerts the moment your score changes</p>
+                    <p className="font-medium text-gray-900 dark:text-slate-50">Instant Notifications</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">Get alerts the moment your score changes</p>
                   </div>
                 </div>
               </div>
@@ -76,7 +76,7 @@ export function IntelligenceGrid() {
 
           {/* Reasoning Engine - Gemini */}
           <div className="group">
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 border border-purple-200 hover:shadow-xl transition-all duration-300">
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-2xl p-8 border border-purple-200 dark:border-purple-900 hover:shadow-xl dark:hover:shadow-purple-900/20 transition-all duration-300">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center">
                   <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -84,11 +84,11 @@ export function IntelligenceGrid() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-gray-900">Reasoning Engine</h3>
-                  <p className="text-sm text-purple-600 font-semibold">Powered by Gemini</p>
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-slate-50">Reasoning Engine</h3>
+                  <p className="text-sm text-purple-600 dark:text-purple-400 font-semibold">Powered by Gemini</p>
                 </div>
               </div>
-              <p className="text-gray-700 mb-6">
+              <p className="text-gray-700 dark:text-slate-300 mb-6">
                 Deep analysis for nuanced career guidance. Strategic insights for placement success.
               </p>
               <div className="space-y-4">
@@ -99,8 +99,8 @@ export function IntelligenceGrid() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Resume ATS Auditor</p>
-                    <p className="text-sm text-gray-600">Deep critique of impact metrics and action verbs</p>
+                    <p className="font-medium text-gray-900 dark:text-slate-50">Resume ATS Auditor</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">Deep critique of impact metrics and action verbs</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -110,8 +110,8 @@ export function IntelligenceGrid() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Company Lens</p>
-                    <p className="text-sm text-gray-600">Strategic matching against deep company requirements</p>
+                    <p className="font-medium text-gray-900 dark:text-slate-50">Company Lens</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">Strategic matching against deep company requirements</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -121,8 +121,8 @@ export function IntelligenceGrid() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">Career Gap Analysis</p>
-                    <p className="text-sm text-gray-600">Personalized roadmap for placement readiness</p>
+                    <p className="font-medium text-gray-900 dark:text-slate-50">Career Gap Analysis</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">Personalized roadmap for placement readiness</p>
                   </div>
                 </div>
               </div>

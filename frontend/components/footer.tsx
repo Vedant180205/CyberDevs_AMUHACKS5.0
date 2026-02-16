@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export function Footer() {
   return (
-    <footer className="bg-slate-900 text-gray-400 py-16">
+    <footer className="bg-slate-900 dark:bg-slate-950 text-gray-400 py-16 transition-colors duration-500">
       <div className="max-w-6xl mx-auto px-4">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
@@ -145,7 +145,7 @@ export function Footer() {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-slate-800 pt-8">
+        <div className="border-t border-slate-800 dark:border-slate-800 pt-8">
           {/* Bottom Footer */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* Logo & Copyright */}

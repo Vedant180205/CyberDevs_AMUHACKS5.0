@@ -45,15 +45,13 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             // Redirect to login page if authorized
             if (typeof window !== 'undefined') {
-                const role = localStorage.getItem('role');
-                localStorage.removeItem('token'); // Clear invalid token
+                // Clear both localStorage and Cookies
+                localStorage.removeItem('token');
                 localStorage.removeItem('role');
+                document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 
-                if (role === 'admin') {
-                    window.location.href = '/admin/login';
-                } else {
-                    window.location.href = '/login';
-                }
+                // Always redirect to unified login
+                window.location.href = '/login';
             }
         }
         return Promise.reject(error);

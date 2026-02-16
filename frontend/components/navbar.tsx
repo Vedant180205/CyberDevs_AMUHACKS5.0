@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useState } from 'react'
+import { ModeToggle } from '@/components/mode-toggle'
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -23,7 +24,7 @@ export function Navbar() {
   ]
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-gray-100 dark:border-slate-800 shadow-sm transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -35,8 +36,8 @@ export function Navbar() {
               CQ
             </div>
             <div>
-              <h1 className="font-bold text-lg text-gray-900">CampusIQ</h1>
-              <p className="text-xs text-gray-500 -mt-1">Placement Intelligence</p>
+              <h1 className="font-bold text-lg text-gray-900 dark:text-slate-50">CampusIQ</h1>
+              <p className="text-xs text-gray-500 dark:text-slate-400 -mt-1">Placement Intelligence</p>
             </div>
           </button>
 
@@ -46,7 +47,7 @@ export function Navbar() {
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
-                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition-all duration-200"
               >
                 {link.label}
               </button>
@@ -61,10 +62,12 @@ export function Navbar() {
               </Button>
             </Link>
 
+            <ModeToggle />
+
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
             >
               <svg
                 className="w-6 h-6"
@@ -85,12 +88,12 @@ export function Navbar() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="lg:hidden mt-4 pt-4 border-t border-gray-100 space-y-2">
+          <div className="lg:hidden mt-4 pt-4 border-t border-gray-100 dark:border-slate-800 space-y-2">
             {navLinks.map((link) => (
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
-                className="block w-full text-left px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 rounded-lg transition-colors"
+                className="block w-full text-left px-3 py-2 text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
               >
                 {link.label}
               </button>

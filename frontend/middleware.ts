@@ -33,12 +33,9 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(loginUrl)
     }
 
-    // If accessing auth route with valid token, redirect to dashboard
-    // (Optional: prevents logged-in users from seeing login page)
-    if (isAuthRoute && token) {
-        const dashboardUrl = new URL('/dashboard', request.url)
-        return NextResponse.redirect(dashboardUrl)
-    }
+    // Simplified: We do NOT redirect logged-in users away from /login.
+    // This prevents infinite loops if the token is invalid but present.
+    // Users can manually navigate to dashboard or click a "Go to Dashboard" button if we add one.
 
     return NextResponse.next()
 }

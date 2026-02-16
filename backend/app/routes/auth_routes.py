@@ -31,14 +31,34 @@ async def signup(student: StudentSignup):
 
 @router.post("/login")
 async def login(student: StudentLogin):
-    user = await students_collection.find_one({"email": student.email})
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+    try:
+        print(f"DEBUG: Login attempt for {student.email}")
+        import time
+        start = time.time()
+        
+        user = await students_collection.find_one({"email": student.email})
+        print(f"DEBUG: DB Fetch took {time.time() - start:.4f}s")
+        
+        if not user:
+            print("DEBUG: User not found")
+            raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    if not verify_password(student.password, user["password"]):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        if not verify_password(student.password, user["password"]):
+            print("DEBUG: Password mismatch")
+            raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    role = user.get("role", "student")
-    token = create_access_token({"email": user["email"], "role": role})
+        print(f"DEBUG: Password verification took {time.time() - start:.4f}s")
 
-    return {"access_token": token, "token_type": "bearer", "role": role}
+        role = user.get("role", "student")
+        token = create_access_token({"email": user["email"], "role": role})
+        print(f"DEBUG: Token creation took {time.time() - start:.4f}s")
+
+        return {"access_token": token, "token_type": "bearer", "role": role}
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        trace = traceback.format_exc()
+        print(f"LOGIN ERROR: {trace}")
+        from fastapi.responses import JSONResponse
+        return JSONResponse(status_code=500, content={"detail": f"Login Failed: {str(e)}", "trace": trace})

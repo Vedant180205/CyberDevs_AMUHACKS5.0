@@ -1,11 +1,11 @@
-from groq import Groq
+from groq import AsyncGroq
 from app.config import GROQ_API_KEY, GROQ_MODEL
 import json
 
-client = Groq(api_key=GROQ_API_KEY)
+client = AsyncGroq(api_key=GROQ_API_KEY)
 
 
-def analyze_github_with_groq(github_data: dict) -> dict:
+async def analyze_github_with_groq(github_data: dict) -> dict:
     """
     Use Groq AI to analyze GitHub profile data and provide intelligent insights.
     
@@ -78,7 +78,7 @@ IMPORTANT: Respond ONLY with valid JSON. No markdown, no code blocks, just the J
 
     try:
         # Call Groq API
-        chat_completion = client.chat.completions.create(
+        chat_completion = await client.chat.completions.create(
             messages=[
                 {
                     "role": "user",
@@ -155,7 +155,7 @@ IMPORTANT: Respond ONLY with valid JSON. No markdown, no code blocks, just the J
         }
 
 
-def analyze_company_matches_with_groq(student: dict, company_matches: list) -> dict:
+async def analyze_company_matches_with_groq(student: dict, company_matches: list) -> dict:
     """
     Use Groq AI to analyze student profile against company matches and provide detailed insights.
     
@@ -173,7 +173,7 @@ def analyze_company_matches_with_groq(student: dict, company_matches: list) -> d
     year = student.get("year", "Unknown")
     cgpa = student.get("cgpa", 0)
     skills = student.get("skills", [])
-    github_analysis = student.get("github_analysis", {})
+    github_analysis = student.get("github_analysis") or {} # Ensure it's a dict
     prs_score = student.get("prs_score", 0)
     
     # Build comprehensive prompt
@@ -187,33 +187,30 @@ def analyze_company_matches_with_groq(student: dict, company_matches: list) -> d
 - Skills: {', '.join(skills)}
 - PRS (Placement Readiness Score): {prs_score}/100
 - GitHub Score: {github_analysis.get('github_score', 0)}/100
-- Top Languages: {', '.join(github_analysis.get('top_languages', [])[:5])}
+- Top Languages: {', '.join((github_analysis.get('top_languages') or [])[:5])}
 - Public Repos: {github_analysis.get('public_repos', 0)}
-- Recent Activity (90d): {github_analysis.get('activity_summary', {}).get('commits_last_90_days_estimated', 0)} commits
+- Recent Activity (90d): {(github_analysis.get('activity_summary') or {}).get('commits_last_90_days_estimated', 0)} commits
 
 **Company Matches:**
 {json.dumps(company_matches, indent=2)}
 
-Provide a detailed analysis in JSON format with this EXACT structure:
-
+**Response Structure (Strict JSON):**
 {{
   "profile_strengths": [
     "Specific strength with evidence from profile",
-    "Another strength with evidence",
-    "Third strength with evidence"
+    "Another strength with evidence"
   ],
   "profile_weaknesses": [
     "Specific weakness with explanation",
-    "Another weakness with explanation",
-    "Third weakness with explanation"
+    "Another weakness with explanation"
   ],
   "overall_profile_summary": "2-3 sentences summarizing the student's placement readiness and key differentiators",
   "company_insights": [
     {{
       "company_name": "Exact company name from matches",
       "is_eligible": true/false,
-      "match_reasoning": "Detailed explanation of why skills/tech stack match this company",
-      "eligibility_explanation": "Clear explanation of eligibility status - if eligible, why they qualify; if not, specific missing requirements (CGPA/skills/branch)",
+      "match_reasoning": "List ONLY positive match attributes. Example: 'Student has required 8.0 CGPA and Java skills'. Do NOT mention missing skills here.",
+      "eligibility_explanation": "If eligible, explain why. If NOT eligible, list ONLY the MISSING requirements. Example: 'Missing required System Design skill'.",
       "improvement_suggestions": [
         "Specific action to improve match/eligibility",
         "Another actionable suggestion"
@@ -222,24 +219,18 @@ Provide a detailed analysis in JSON format with this EXACT structure:
   ],
   "top_priority_actions": [
     "Most important action for overall placement success",
-    "Second priority action",
-    "Third priority action"
+    "Second priority action"
   ],
   "recommended_companies_to_focus": [
     "Company name and brief reason why student should prioritize it"
   ]
 }}
-
-CRITICAL INSTRUCTIONS:
-1. Be SPECIFIC - cite actual skills, CGPA values, branch requirements
-2. For eligible companies, explain WHAT makes them a good match (skills overlap, tech stack alignment)
-3. For ineligible companies, state EXACTLY what's missing (e.g., "CGPA 7.5 required, student has 6.8" or "Missing required skills: System Design, DSA")
-4. Make suggestions ACTIONABLE (e.g., "Complete DSA course", "Work on 2 full-stack projects", not vague advice)
-5. Respond ONLY with valid JSON. No markdown, no code blocks, just the JSON object."""
+IMPORTANT: Respond ONLY with valid JSON.
+"""
 
     try:
         # Call Groq API
-        chat_completion = client.chat.completions.create(
+        chat_completion = await client.chat.completions.create(
             messages=[
                 {
                     "role": "user",
@@ -285,7 +276,7 @@ CRITICAL INSTRUCTIONS:
         }
 
 
-def generate_batch_recommendations(batch_stats: list) -> dict:
+async def generate_batch_recommendations(batch_stats: list) -> dict:
     """
     Analyzes aggregated batch statistics using Groq to provide training recommendations.
     """
@@ -297,8 +288,10 @@ def generate_batch_recommendations(batch_stats: list) -> dict:
     {json.dumps(batch_stats, indent=2)}
 
     **Instructions:**
-    1. Identify batches with low Average PRS (< 50), low GitHub scores, or specific skill gaps.
-    2. Suggest 3-5 high-impact interventions (Bootcamps, Workshops, Mentorships).
+    1. Analyze **ONLY** the data provided in "Batch Data". Do NOT assume existance of other batches.
+    2. Identify batches with low Average PRS (< 50), low GitHub scores, or specific skill gaps.
+    3. Suggest 3-5 high-impact interventions (Bootcamps, Workshops, Mentorships).
+    4. **CRITICAL**: If the data contains only one branch (e.g., '1st Year IT'), your recommendations must be specific to that branch ONLY. Do not mention other branches.
     3. For each recommendation, specify:
        - **Target Group**: e.g., "Third Year CSE"
        - **Module/Topic**: e.g., "Advanced React & Redux", "Data Structures in Python"
@@ -322,7 +315,7 @@ def generate_batch_recommendations(batch_stats: list) -> dict:
     """
 
     try:
-        chat_completion = client.chat.completions.create(
+        chat_completion = await client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
             model=GROQ_MODEL,
             temperature=0.4,

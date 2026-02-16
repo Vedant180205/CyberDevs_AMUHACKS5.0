@@ -194,7 +194,7 @@ export function ModulesSection() {
   ]
 
   return (
-    <section id="modules" ref={containerRef} className="relative py-20 bg-white overflow-hidden">
+    <section id="modules" ref={containerRef} className="relative py-20 bg-white dark:bg-slate-950 overflow-hidden transition-colors duration-500">
       {/* Background elements */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-br from-blue-100 to-transparent rounded-full filter blur-3xl opacity-10"></div>
@@ -204,13 +204,13 @@ export function ModulesSection() {
       <div className="max-w-7xl mx-auto px-4">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <div className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
+          <div className="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-semibold mb-6 border border-blue-200 dark:border-blue-800">
             CORE INTELLIGENCE MODULES
           </div>
-          <h2 className="text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight">
+          <h2 className="text-5xl lg:text-6xl font-black text-gray-900 dark:text-slate-50 mb-6 leading-tight">
             Advanced Placement <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Analytics</span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-slate-400 max-w-2xl mx-auto">
             Six premium modules built for student success and institutional intelligence. Each powered by cutting-edge AI and real-time data.
           </p>
         </div>
@@ -226,7 +226,7 @@ export function ModulesSection() {
               className="group relative h-full cursor-pointer"
             >
               {/* Glassmorphism Card */}
-              <div className="relative h-full bg-white/40 backdrop-blur-xl border border-white/50 rounded-2xl p-8 overflow-hidden transition-all duration-300 hover:bg-white/60"
+              <div className="relative h-full bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/50 dark:border-slate-800 rounded-2xl p-8 overflow-hidden transition-all duration-300 hover:bg-white/60 dark:hover:bg-slate-800/60"
                 style={{
                   boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
                 }}
@@ -234,14 +234,13 @@ export function ModulesSection() {
                 {/* Gradient border on hover */}
                 <div className="absolute inset-0 rounded-2xl p-px bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
                   style={{
-                    backgroundImage: `linear-gradient(135deg, ${
-                      module.accentColor === 'from-blue-600 to-blue-700' ? '#3b82f6' :
-                      module.accentColor === 'from-slate-600 to-slate-700' ? '#475569' :
-                      module.accentColor === 'from-cyan-600 to-cyan-700' ? '#06b6d4' :
-                      module.accentColor === 'from-orange-600 to-orange-700' ? '#ea580c' :
-                      module.accentColor === 'from-purple-600 to-purple-700' ? '#a855f7' :
-                      '#dc2626'
-                    }, transparent)`
+                    backgroundImage: `linear-gradient(135deg, ${module.accentColor === 'from-blue-600 to-blue-700' ? '#3b82f6' :
+                        module.accentColor === 'from-slate-600 to-slate-700' ? '#475569' :
+                          module.accentColor === 'from-cyan-600 to-cyan-700' ? '#06b6d4' :
+                            module.accentColor === 'from-orange-600 to-orange-700' ? '#ea580c' :
+                              module.accentColor === 'from-purple-600 to-purple-700' ? '#a855f7' :
+                                '#dc2626'
+                      }, transparent)`
                   }}
                 ></div>
 
@@ -254,10 +253,10 @@ export function ModulesSection() {
 
                   {/* Middle: Title & Description */}
                   <div className="space-y-2">
-                    <h3 className="text-xl font-bold text-gray-900">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-slate-50">
                       {module.title}
                     </h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">
+                    <p className="text-sm text-gray-600 dark:text-slate-400 leading-relaxed">
                       {module.description}
                     </p>
                   </div>
@@ -273,10 +272,10 @@ export function ModulesSection() {
                           style={{
                             background: module.accentColor === 'from-blue-600 to-blue-700' ? '#3b82f6' :
                               module.accentColor === 'from-slate-600 to-slate-700' ? '#475569' :
-                              module.accentColor === 'from-cyan-600 to-cyan-700' ? '#06b6d4' :
-                              module.accentColor === 'from-orange-600 to-orange-700' ? '#ea580c' :
-                              module.accentColor === 'from-purple-600 to-purple-700' ? '#a855f7' :
-                              '#dc2626'
+                                module.accentColor === 'from-cyan-600 to-cyan-700' ? '#06b6d4' :
+                                  module.accentColor === 'from-orange-600 to-orange-700' ? '#ea580c' :
+                                    module.accentColor === 'from-purple-600 to-purple-700' ? '#a855f7' :
+                                      '#dc2626'
                           }}
                         >
                           {tag}
@@ -285,7 +284,7 @@ export function ModulesSection() {
                     </div>
 
                     {/* View Details link */}
-                    <div className="pt-2 flex items-center gap-2 text-sm font-semibold text-gray-600 group-hover:text-gray-900 transition-colors cursor-pointer">
+                    <div className="pt-2 flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-slate-400 group-hover:text-gray-900 dark:group-hover:text-slate-200 transition-colors cursor-pointer">
                       <span>View Details</span>
                       <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

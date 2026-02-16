@@ -10,7 +10,7 @@ import { Footer } from '@/components/footer'
 
 export default function Page() {
   return (
-    <main className="w-full overflow-x-hidden">
+    <main className="w-full overflow-x-hidden relative bg-white dark:bg-slate-950 transition-colors duration-500">
       <Navbar />
       <HeroSection />
       <TrustStrip />

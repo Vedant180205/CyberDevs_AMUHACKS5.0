@@ -2,17 +2,17 @@
 
 export function DashboardsSection() {
   return (
-    <section id="dashboards" className="relative py-20 bg-gradient-to-b from-white to-gray-50">
+    <section id="dashboards" className="relative py-20 bg-gradient-to-b from-white to-gray-50 dark:from-slate-950 dark:to-slate-900 transition-colors duration-500">
       <div className="max-w-6xl mx-auto px-4">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+          <div className="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-semibold mb-4 border border-blue-200 dark:border-blue-800">
             DUAL PLATFORM
           </div>
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-slate-50 mb-4">
             Dashboards Built for Students & Placement Officers
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 dark:text-slate-400">
             Purpose-built interfaces designed to empower students with actionable insights and give institutions strategic oversight.
           </p>
         </div>
@@ -20,7 +20,7 @@ export function DashboardsSection() {
         {/* Two Dashboard Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Student Dashboard */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl border-2 border-blue-200 p-10 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-3xl border-2 border-blue-200 dark:border-blue-900 p-10 hover:shadow-2xl dark:hover:shadow-blue-900/20 transition-all duration-300 hover:-translate-y-1">
             {/* Icon */}
             <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center mb-6">
               <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -29,10 +29,10 @@ export function DashboardsSection() {
             </div>
 
             {/* Title */}
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">Student Dashboard</h3>
-            
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 mb-3">Student Dashboard</h3>
+
             {/* Description */}
-            <p className="text-gray-700 mb-6 leading-relaxed">
+            <p className="text-gray-700 dark:text-slate-300 mb-6 leading-relaxed">
               Your personal readiness command center. Track placement progress in real-time with intelligent scoring and personalized improvement paths.
             </p>
 
@@ -63,8 +63,8 @@ export function DashboardsSection() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 text-sm">{item.title}</p>
-                    <p className="text-xs text-gray-600">{item.desc}</p>
+                    <p className="font-semibold text-gray-900 dark:text-slate-50 text-sm">{item.title}</p>
+                    <p className="text-xs text-gray-600 dark:text-slate-400">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -72,7 +72,7 @@ export function DashboardsSection() {
           </div>
 
           {/* Admin Dashboard */}
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-3xl border-2 border-purple-200 p-10 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 rounded-3xl border-2 border-purple-200 dark:border-purple-900 p-10 hover:shadow-2xl dark:hover:shadow-purple-900/20 transition-all duration-300 hover:-translate-y-1">
             {/* Icon */}
             <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center mb-6">
               <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -81,10 +81,10 @@ export function DashboardsSection() {
             </div>
 
             {/* Title */}
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">Admin Dashboard</h3>
-            
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 mb-3">Admin Dashboard</h3>
+
             {/* Description */}
-            <p className="text-gray-700 mb-6 leading-relaxed">
+            <p className="text-gray-700 dark:text-slate-300 mb-6 leading-relaxed">
               Strategic oversight for placement officers. Data-driven insights to optimize campus readiness and predict placement success outcomes.
             </p>
 
@@ -115,8 +115,8 @@ export function DashboardsSection() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900 text-sm">{item.title}</p>
-                    <p className="text-xs text-gray-600">{item.desc}</p>
+                    <p className="font-semibold text-gray-900 dark:text-slate-50 text-sm">{item.title}</p>
+                    <p className="text-xs text-gray-600 dark:text-slate-400">{item.desc}</p>
                   </div>
                 </div>
               ))}

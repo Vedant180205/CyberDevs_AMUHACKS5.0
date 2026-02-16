@@ -80,34 +80,62 @@ export function HeroSection() {
       title: 'PRS Score Engine',
       description: '0–100 real-time readiness scoring',
       icon: (
-        <svg className="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-13c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5z" />
-        </svg>
+        <div className="relative w-16 h-16">
+          {/* Animated circular progress with glow */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 dark:from-blue-500 dark:via-blue-600 dark:to-blue-700 animate-pulse shadow-xl shadow-blue-500/50"></div>
+          <div className="absolute inset-2 rounded-full bg-white dark:bg-slate-900 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-xl font-black bg-gradient-to-br from-blue-600 to-blue-700 bg-clip-text text-transparent">72</div>
+              <div className="text-[6px] text-gray-500 dark:text-slate-400 font-bold">PRS</div>
+            </div>
+          </div>
+          {/* Floating particles */}
+          <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-blue-400 animate-bounce"></div>
+          <div className="absolute -bottom-1 -left-1 w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></div>
+        </div>
       )
     },
     {
       title: 'GitHub + LinkedIn Intelligence',
       description: 'Live profile analysis powered by APIs',
       icon: (
-        <svg className="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.9 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v-3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-        </svg>
+        <div className="relative w-16 h-16">
+          {/* Lightning bolt with electric effect */}
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-400 via-purple-500 to-pink-500 dark:from-purple-500 dark:via-purple-600 dark:to-pink-600 shadow-xl shadow-purple-500/50 flex items-center justify-center transform hover:rotate-6 transition-transform duration-300">
+            <svg className="w-10 h-10 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M13 2L3 14h8l-2 8 10-12h-8z" />
+            </svg>
+          </div>
+          {/* Electric sparks */}
+          <div className="absolute top-0 left-0 w-1 h-1 rounded-full bg-yellow-300 animate-ping"></div>
+          <div className="absolute bottom-2 right-1 w-1.5 h-1.5 rounded-full bg-purple-300 animate-pulse"></div>
+          <div className="absolute top-3 right-0 w-1 h-1 rounded-full bg-pink-300 animate-bounce delay-75"></div>
+        </div>
       )
     },
     {
       title: 'Company Lens Eligibility',
       description: 'Match your profile with real company criteria',
       icon: (
-        <svg className="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-          <path d="M17 21v-8H7v8M7 3v5h8" />
-        </svg>
+        <div className="relative w-16 h-16">
+          {/* Magnifying glass with scan lines */}
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-400 via-cyan-500 to-teal-500 dark:from-cyan-500 dark:via-cyan-600 dark:to-teal-600 shadow-xl shadow-cyan-500/50 flex items-center justify-center transform hover:scale-110 transition-transform duration-300">
+            <svg className="w-9 h-9 text-white drop-shadow-lg" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
+              <path d="M11 8v6M8 11h6" strokeLinecap="round" />
+            </svg>
+          </div>
+          {/* Scan effect */}
+          <div className="absolute inset-4 rounded-full border-2 border-white/30 animate-ping"></div>
+          <div className="absolute top-1 right-2 w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse"></div>
+        </div>
       )
     }
   ]
 
   return (
-    <section id="home" className="relative w-full bg-gradient-to-br from-white via-blue-50 to-indigo-50 overflow-hidden">
+    <section id="home" className="relative w-full bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 overflow-hidden transition-colors duration-500">
       {/* Premium Background */}
       <div className="absolute inset-0 -z-20 overflow-hidden">
         {/* Gradient blobs */}
@@ -148,7 +176,7 @@ export function HeroSection() {
             {/* Badge with glow */}
             <div
               ref={badgeRef}
-              className="inline-block bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold relative"
+              className="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-semibold relative border border-blue-200 dark:border-blue-800"
               style={{
                 boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)'
               }}
@@ -158,11 +186,11 @@ export function HeroSection() {
 
             {/* Main Title - Premium Typography */}
             <div ref={titleRef}>
-              <h1 className="text-5xl lg:text-7xl font-black text-gray-900 leading-tight">
+              <h1 className="text-5xl lg:text-7xl font-black text-gray-900 dark:text-slate-50 leading-tight">
                 CampusIQ
               </h1>
               <div className="mt-2 flex flex-wrap items-baseline gap-3">
-                <span className="text-4xl lg:text-5xl font-bold text-gray-900">Placement Readiness</span>
+                <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-slate-50">Placement Readiness</span>
                 <span className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">
                   Made Predictable
                 </span>
@@ -174,7 +202,7 @@ export function HeroSection() {
             {/* Subheading */}
             <p
               ref={subtitleRef}
-              className="text-lg text-gray-600 max-w-lg leading-relaxed"
+              className="text-lg text-gray-600 dark:text-slate-400 max-w-lg leading-relaxed"
             >
               Track LinkedIn, GitHub, Resume, Aptitude, Coding and Soft Skills using a real-time Placement Readiness Score (PRS).
             </p>
@@ -184,15 +212,15 @@ export function HeroSection() {
               {features.map((feature, idx) => (
                 <div
                   key={idx}
-                  className="feature-row group bg-white/60 backdrop-blur-md border border-white/40 rounded-xl p-4 hover:bg-white/80 hover:border-blue-200 transition-all duration-300 cursor-pointer"
+                  className="feature-row group bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/40 dark:border-slate-800 rounded-xl p-4 hover:bg-white/80 dark:hover:bg-slate-800/80 hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-300 cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex-shrink-0">
                       {feature.icon}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 text-sm">{feature.title}</h3>
-                      <p className="text-xs text-gray-600">{feature.description}</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-slate-50 text-sm">{feature.title}</h3>
+                      <p className="text-xs text-gray-600 dark:text-slate-400">{feature.description}</p>
                     </div>
                     <svg className="w-5 h-5 text-blue-600 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -212,7 +240,7 @@ export function HeroSection() {
             </div>
 
             {/* Trust Line */}
-            <p className="text-sm text-gray-600 font-medium">
+            <p className="text-sm text-gray-600 dark:text-slate-400 font-medium">
               Trusted by Placement Cells • <span className="font-semibold text-blue-600">7500+ Students Tracked</span>
             </p>
           </div>
@@ -254,7 +282,7 @@ export function HeroSection() {
       </div>
 
       {/* Wave Divider */}
-      <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-white dark:from-slate-950 to-transparent pointer-events-none transition-colors duration-500"></div>
     </section>
   )
 }

@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { Button } from '@/components/ui/button'
+import { setAuthToken, setUserRole } from '@/lib/auth'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ModeToggle } from "@/components/mode-toggle"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -98,42 +100,23 @@ export default function LoginPage() {
 
   const handleAuthSuccess = async (token: string, role: string = 'student') => {
     // Use auth utilities
-    const { setAuthToken, setUserRole } = await import('@/lib/auth')
     setAuthToken(token)
-    setUserRole(role)
+    setUserRole(role as 'student' | 'admin')
 
     if (role === 'admin') {
-      router.push('/admin/dashboard')
+      router.replace('/admin/dashboard')
       return
     }
 
-    // Checking student profile completion
-    try {
-      const studentRes = await api.get("/api/student/me", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      const studentData = studentRes.data
-
-      const profileCompleted =
-        studentData.branch &&
-        studentData.year &&
-        studentData.skills &&
-        studentData.skills.length > 0
-
-      if (!profileCompleted) {
-        router.push("/student/profile")
-      } else {
-        router.push("/dashboard")
-      }
-    } catch (err) {
-      console.error("Profile check failed", err)
-      router.push("/dashboard")
-    }
+    // Redirect immediately - Dashboard will check profile completion
+    router.replace("/dashboard")
   }
 
-
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-white p-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4 relative overflow-hidden transition-colors duration-300">
+      <div className="absolute top-4 right-4 z-50">
+        <ModeToggle />
+      </div>
 
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -161,16 +144,16 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md"
       >
-        <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-xl overflow-hidden ring-1 ring-white/50">
-          <CardHeader className="space-y-2 text-center pb-6 border-b border-gray-100/50 bg-gradient-to-b from-white to-gray-50/50 pt-6">
+        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl dark:border dark:border-slate-800 overflow-hidden ring-1 ring-white/50 dark:ring-slate-800/50">
+          <CardHeader className="space-y-2 text-center pb-6 border-b border-gray-100/50 dark:border-slate-800 bg-gradient-to-b from-white to-gray-50/50 dark:from-slate-900 dark:to-slate-900/50 pt-6">
             <div className="mx-auto w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-1">
               <span className="text-white font-bold text-lg">CQ</span>
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold text-gray-900 tracking-tight">
+              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-slate-50 tracking-tight">
                 {isLogin ? "Welcome Back" : "Create Account"}
               </CardTitle>
-              <CardDescription className="text-gray-500 mt-1 text-sm">
+              <CardDescription className="text-gray-500 dark:text-slate-400 mt-1 text-sm">
                 {isLogin ? "Sign in to access your CampusIQ dashboard" : "Join CampusIQ for personalized placement insights"}
               </CardDescription>
             </div>
@@ -301,12 +284,21 @@ export default function LoginPage() {
                   </>
                 )}
               </Button>
+              {/* Divider */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-gray-200 dark:border-slate-800" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white dark:bg-slate-900 px-2 text-gray-500 dark:text-slate-400">Or</span>
+                </div>
+              </div>
             </form>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-3 bg-gray-50/50 py-4 border-t border-gray-100">
+          <CardFooter className="flex flex-col space-y-3 bg-gray-50/50 dark:bg-slate-800/50 py-4 border-t border-gray-100 dark:border-slate-800">
             <div className="w-full flex justify-center text-sm items-center gap-2">
-              <span className="text-gray-500">
+              <span className="text-gray-500 dark:text-slate-400">
                 {isLogin ? "Don't have an account?" : "Already have an account?"}
               </span>
               <button
@@ -316,14 +308,14 @@ export default function LoginPage() {
                   setError("")
                   setSuccessMessage("")
                 }}
-                className="font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors"
               >
                 {isLogin ? "Sign Up" : "Log In"}
               </button>
             </div>
 
             <div className="text-center w-full">
-              <p className="text-[10px] text-gray-400">
+              <p className="text-[10px] text-gray-400 dark:text-slate-500">
                 Secure authentication powered by CampusIQ
               </p>
             </div>

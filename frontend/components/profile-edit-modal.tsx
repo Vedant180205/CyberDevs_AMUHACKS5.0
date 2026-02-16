@@ -30,6 +30,13 @@ interface ProfileEditModalProps {
 export function ProfileEditModal({ studentData, onUpdate }: ProfileEditModalProps) {
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [mounted, setMounted] = useState(false)
+
+    // Fix hydration error by mounting dialog only on client
+    React.useEffect(() => {
+        setMounted(true)
+    }, [])
+
     const [formData, setFormData] = useState({
         name: studentData?.name || '',
         year: studentData?.year || '',
@@ -41,8 +48,8 @@ export function ProfileEditModal({ studentData, onUpdate }: ProfileEditModalProp
     })
 
     const [resumeFile, setResumeFile] = useState<File | null>(null)
-    const [analyzingResume, setAnalyzingResume] = useState(false)
-    const [resumeAnalysis, setResumeAnalysis] = useState<any>(null)
+    const [uploadingResume, setUploadingResume] = useState(false)
+    const [resumeName, setResumeName] = useState<string | null>(studentData?.resume?.file_name || null)
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,46 +62,37 @@ export function ProfileEditModal({ studentData, onUpdate }: ProfileEditModalProp
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setResumeFile(e.target.files[0])
-            handleAnalyzeResume(e.target.files[0])
+            const file = e.target.files[0]
+            if (file.type !== "application/pdf") {
+                alert("Please upload a PDF file.")
+                return
+            }
+            setResumeFile(file)
+            handleUploadResume(file)
         }
     }
 
-    const handleAnalyzeResume = async (file: File) => {
-        setAnalyzingResume(true)
+    const handleUploadResume = async (file: File) => {
+        setUploadingResume(true)
         try {
             const formData = new FormData()
             formData.append('file', file)
 
-            const res = await api.post('/api/student/analyze/resume', formData, {
+            const res = await api.post('/api/student/upload-resume', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             })
 
-            // Store analysis result
-            setResumeAnalysis(res.data)
-            alert(`✅ Resume Analyzed! ATS Score: ${res.data.ats_score}/100`)
-
-            // Auto-fill skills if found inside the nested 'analysis' object
-            const analysisData = res.data.analysis;
-            if (analysisData && analysisData.skills && Array.isArray(analysisData.skills)) {
-                const newSkills = analysisData.skills.join(', ')
-                setFormData(prev => {
-                    const currentSkills = prev.skills || ''
-                    // Avoid duplicates if possible but simple concatenation is fine for now
-                    return {
-                        ...prev,
-                        skills: currentSkills ? `${currentSkills}, ${newSkills}` : newSkills
-                    }
-                })
-            }
+            // Update local state
+            setResumeName(res.data.file_name)
+            alert(`✅ Resume Uploaded! We extracted ${res.data.tables_extracted} tables and ${res.data.images_extracted} images.`)
 
         } catch (error) {
-            console.error('Resume analysis error:', error)
-            alert('Failed to analyze resume. Please try again.')
+            console.error('Resume upload error:', error)
+            alert('Failed to upload resume. Please try again.')
         } finally {
-            setAnalyzingResume(false)
+            setUploadingResume(false)
         }
     }
 
@@ -121,6 +119,15 @@ export function ProfileEditModal({ studentData, onUpdate }: ProfileEditModalProp
         }
     }
 
+    if (!mounted) {
+        return (
+            <Button variant="outline" size="sm" className="hidden md:flex gap-2">
+                <Edit2 className="h-4 w-4" />
+                Edit Profile
+            </Button>
+        )
+    }
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -139,29 +146,28 @@ export function ProfileEditModal({ studentData, onUpdate }: ProfileEditModalProp
                         <Label htmlFor="resume" className="cursor-pointer block">
                             <div className="flex flex-col items-center gap-2">
                                 <div className="p-2 bg-blue-100 rounded-full text-blue-600">
-                                    {analyzingResume ? <Loader2 className="h-6 w-6 animate-spin" /> : <Edit2 className="h-6 w-6" />}
+                                    {uploadingResume ? <Loader2 className="h-6 w-6 animate-spin" /> : <Edit2 className="h-6 w-6" />}
                                 </div>
                                 <span className="text-sm font-medium text-gray-700">
-                                    {analyzingResume ? "Analyzing Resume..." : "Upload Resume Image for AI Analysis"}
+                                    {uploadingResume ? "Uploading & Extracting..." : (resumeName ? `Update Resume (${resumeName})` : "Upload Resume (PDF)")}
                                 </span>
                                 <span className="text-xs text-gray-500">
-                                    Upload an image of your resume to auto-extract skills and get an ATS score.
+                                    Upload your resume in PDF format. We will extract text and images for analysis.
                                 </span>
                             </div>
                             <Input
                                 id="resume"
                                 type="file"
-                                accept="image/*"
+                                accept="application/pdf"
                                 className="hidden"
                                 onChange={handleFileChange}
-                                disabled={analyzingResume}
+                                disabled={uploadingResume}
                             />
                         </Label>
-                        {resumeAnalysis && (
+                        {resumeName && !uploadingResume && (
                             <div className="mt-3 text-sm text-left bg-green-50 p-3 rounded border border-green-100">
-                                <p className="font-semibold text-green-700">✅ Analysis Complete</p>
-                                <p>ATS Score: <strong>{resumeAnalysis.ats_score}/100</strong></p>
-                                <p className="text-xs mt-1 text-gray-600">Skills extracted and added to form.</p>
+                                <p className="font-semibold text-green-700">✅ Resume Uploaded</p>
+                                <p className="text-xs text-gray-600 truncate">File: {resumeName}</p>
                             </div>
                         )}
                     </div>

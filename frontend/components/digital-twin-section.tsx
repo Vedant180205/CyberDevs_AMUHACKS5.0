@@ -2,10 +2,10 @@
 
 export function DigitalTwinSection() {
   return (
-    <section id="digitaltwin" className="relative py-20 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white overflow-hidden">
+    <section id="digitaltwin" className="relative py-20 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 text-white overflow-hidden transition-colors duration-500">
       {/* Subtle Background Elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-white opacity-5 rounded-full blur-3xl"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-white dark:bg-blue-500 opacity-5 dark:opacity-10 rounded-full blur-3xl transition-colors duration-500"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-white dark:bg-purple-500 opacity-5 dark:opacity-10 rounded-full blur-3xl transition-colors duration-500"></div>
 
       <div className="max-w-6xl mx-auto px-4 relative z-10">
         {/* Header */}
@@ -13,7 +13,7 @@ export function DigitalTwinSection() {
           <h2 className="text-4xl lg:text-5xl font-bold mb-4">
             Placement Readiness Digital Twin
           </h2>
-          <p className="text-lg text-blue-100">
+          <p className="text-lg text-blue-100 dark:text-slate-300 transition-colors duration-300">
             Simulate campus-wide interventions and predict Tier-1 eligibility outcomes before implementation.
           </p>
         </div>

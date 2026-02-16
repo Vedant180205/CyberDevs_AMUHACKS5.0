@@ -9,7 +9,7 @@ gsap.registerPlugin(ScrollTrigger)
 export function TrustStrip() {
   const containerRef = useRef(null)
   const headingRef = useRef(null)
-  const logosRef = useRef([])
+  const logosRef = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -64,14 +64,14 @@ export function TrustStrip() {
   ]
 
   return (
-    <section ref={containerRef} className="w-full bg-white py-12 border-t border-gray-100">
+    <section ref={containerRef} className="w-full bg-white dark:bg-slate-950 py-12 border-t border-gray-100 dark:border-slate-800 transition-colors duration-500">
       <div className="max-w-7xl mx-auto px-4">
         {/* Heading Section */}
         <div ref={headingRef} className="text-center mb-10">
-          <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-slate-50 mb-2">
             Trusted by top recruiters and placement teams
           </h2>
-          <p className="text-sm text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm text-gray-600 dark:text-slate-400 max-w-2xl mx-auto">
             Built for students preparing for Tier-1 and Tier-2 companies.
           </p>
         </div>
@@ -88,7 +88,7 @@ export function TrustStrip() {
                 className="flex-shrink-0 h-16 flex items-center justify-center group transition-all duration-300"
               >
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-gray-500 group-hover:text-blue-600 transition-colors duration-300 whitespace-nowrap">
+                  <p className="text-sm font-semibold text-gray-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300 whitespace-nowrap">
                     {company}
                   </p>
                 </div>

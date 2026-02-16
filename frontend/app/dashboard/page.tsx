@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ModeToggle } from '@/components/mode-toggle'
 import {
     TrendingUp,
     Github,
@@ -26,6 +27,7 @@ import {
 import { motion } from 'framer-motion'
 
 import { ProfileEditModal } from '@/components/profile-edit-modal'
+import { ResumeAnalyzer } from '@/components/student/resume-analyzer'
 
 export default function DashboardPage() {
     const router = useRouter()
@@ -40,6 +42,11 @@ export default function DashboardPage() {
     const [loadingCompanyMatches, setLoadingCompanyMatches] = useState(false)
 
     useEffect(() => {
+        const role = getUserRole()
+        if (role === 'admin') {
+            router.replace('/admin/dashboard')
+            return
+        }
         fetchDashboardData()
     }, [])
 
@@ -47,7 +54,16 @@ export default function DashboardPage() {
         try {
             // Fetch student profile
             const studentRes = await api.get('/api/student/me')
-            setStudentData(studentRes.data)
+            const data = studentRes.data
+
+            // Check profile completion
+            const profileCompleted = data.branch && data.year && data.skills && data.skills.length > 0
+            if (!profileCompleted) {
+                router.replace('/student/profile')
+                return
+            }
+
+            setStudentData(data)
 
             // If student has PRS data already, set it
             if (studentRes.data.prs_score !== undefined) {
@@ -124,7 +140,7 @@ export default function DashboardPage() {
 
     const handleLogout = () => {
         clearAuth()
-        router.push('/login')
+        router.replace('/')
     }
 
     const getPRSColor = (score: number) => {
@@ -136,7 +152,7 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-white p-6">
+            <div className="p-6 space-y-6">
                 <div className="max-w-7xl mx-auto space-y-6">
                     <Skeleton className="h-12 w-64" />
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -150,7 +166,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-white p-6">
+        <div className="p-6 space-y-6 bg-slate-50 dark:bg-slate-950 min-h-full transition-colors">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <motion.div
@@ -159,10 +175,10 @@ export default function DashboardPage() {
                     className="flex justify-between items-center mb-8"
                 >
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-50">
                             Welcome back, {studentData?.name || 'Student'}!
                         </h1>
-                        <p className="text-gray-500 mt-1">
+                        <p className="text-gray-500 dark:text-slate-400 mt-1">
                             {studentData?.branch} • Year {studentData?.year} • CGPA {studentData?.cgpa}
                         </p>
                     </div>
@@ -171,6 +187,7 @@ export default function DashboardPage() {
                             studentData={studentData}
                             onUpdate={fetchDashboardData}
                         />
+                        <ModeToggle />
                         <Button
                             variant="outline"
                             onClick={handleLogout}
@@ -188,7 +205,7 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
                 >
-                    <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-xl mb-6">
+                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl mb-6 dark:border dark:border-slate-800">
                         <CardHeader>
                             <div className="flex justify-between items-center">
                                 <div>
@@ -223,24 +240,24 @@ export default function DashboardPage() {
                                     {/* PRS Score Display */}
                                     <div className="flex items-center gap-6">
                                         <div className={`relative w-32 h-32 rounded-full bg-gradient-to-br ${getPRSColor(prsData.prs_score)} flex items-center justify-center shadow-lg`}>
-                                            <div className="absolute inset-2 rounded-full bg-white flex flex-col items-center justify-center">
-                                                <span className="text-3xl font-bold text-gray-900">{prsData.prs_score}</span>
-                                                <span className="text-xs text-gray-500">/ 100</span>
+                                            <div className="absolute inset-2 rounded-full bg-white dark:bg-slate-800 flex flex-col items-center justify-center">
+                                                <span className="text-3xl font-bold text-gray-900 dark:text-slate-50">{prsData.prs_score}</span>
+                                                <span className="text-xs text-gray-500 dark:text-slate-400">/ 100</span>
                                             </div>
                                         </div>
                                         <div className="flex-1">
-                                            <h3 className="text-2xl font-bold text-gray-900 mb-2">{prsData.prs_level}</h3>
+                                            <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-50 mb-2">{prsData.prs_level}</h3>
                                             <Progress value={prsData.prs_score} className="h-3" />
                                         </div>
                                     </div>
 
                                     {/* PRS Breakdown */}
                                     {prsData.breakdown && (
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-slate-800">
                                             {Object.entries(prsData.breakdown).map(([key, value]: [string, any]) => (
-                                                <div key={key} className="text-center p-3 bg-gray-50 rounded-lg">
-                                                    <p className="text-xs text-gray-500 uppercase mb-1">{key.replace('_', ' ')}</p>
-                                                    <p className="text-xl font-bold text-gray-900">{value}</p>
+                                                <div key={key} className="text-center p-3 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                                                    <p className="text-xs text-gray-500 dark:text-slate-400 uppercase mb-1">{key.replace('_', ' ')}</p>
+                                                    <p className="text-xl font-bold text-gray-900 dark:text-slate-50">{value}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -256,6 +273,19 @@ export default function DashboardPage() {
                     </Card>
                 </motion.div>
 
+                {/* Resume Analyzer Section - Full Width */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="mb-6"
+                >
+                    <ResumeAnalyzer
+                        studentData={studentData}
+                        onUpdate={fetchDashboardData}
+                    />
+                </motion.div>
+
                 {/* Second Row: GitHub Analysis + Company Lens */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     {/* GitHub Analysis */}
@@ -264,11 +294,11 @@ export default function DashboardPage() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
                     >
-                        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-xl h-full">
+                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl h-full dark:border dark:border-slate-800">
                             <CardHeader>
                                 <div className="flex justify-between items-center">
                                     <CardTitle className="flex items-center gap-2">
-                                        <Github className="h-5 w-5 text-gray-900" />
+                                        <Github className="h-5 w-5 text-gray-900 dark:text-slate-50" />
                                         GitHub Analysis
                                     </CardTitle>
                                     <Button
@@ -296,37 +326,39 @@ export default function DashboardPage() {
                                     <div className="space-y-6">
                                         {/* Overview Stats Grid */}
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                            <div className="bg-blue-50 p-3 rounded-lg">
+                                            <div className="bg-blue-50 dark:bg-slate-800 p-3 rounded-lg">
                                                 <Code className="h-5 w-5 text-blue-600 mb-1" />
-                                                <p className="text-xl font-bold text-gray-900">{githubData.public_repos || 0}</p>
-                                                <p className="text-xs text-gray-500">Repositories</p>
+                                                <p className="text-xs text-gray-500 dark:text-slate-400 uppercase mb-1">Repositories</p>
+                                                <p className="text-xl font-bold text-gray-900 dark:text-slate-50">{githubData.public_repos || 0}</p>
                                             </div>
-                                            <div className="bg-green-50 p-3 rounded-lg">
+                                            <div className="bg-green-50 dark:bg-slate-800 p-3 rounded-lg">
                                                 <Star className="h-5 w-5 text-green-600 mb-1" />
-                                                <p className="text-xl font-bold text-gray-900">{githubData.activity_summary?.commits_last_90_days_estimated || 0}</p>
-                                                <p className="text-xs text-gray-500">Commits (90d)</p>
+                                                <p className="text-xs text-gray-500 dark:text-slate-400 uppercase mb-1">Commits (90d)</p>
+                                                <p className="text-xl font-bold text-gray-900 dark:text-slate-50">{githubData.activity_summary?.commits_last_90_days_estimated || 0}</p>
                                             </div>
-                                            <div className="bg-purple-50 p-3 rounded-lg">
+                                            <div className="bg-purple-50 dark:bg-slate-800 p-3 rounded-lg">
                                                 <GitBranch className="h-5 w-5 text-purple-600 mb-1" />
-                                                <p className="text-xl font-bold text-gray-900">{githubData.activity_summary?.active_repos_last_90_days || 0}</p>
-                                                <p className="text-xs text-gray-500">Active Repos</p>
+                                                <p className="text-xs text-gray-500 dark:text-slate-400 uppercase mb-1">Active Repos</p>
+                                                <p className="text-xl font-bold text-gray-900 dark:text-slate-50">{githubData.activity_summary?.active_repos_last_90_days || 0}</p>
                                             </div>
-                                            <div className="bg-indigo-50 p-3 rounded-lg">
+                                            <div className="bg-indigo-50 dark:bg-slate-800 p-3 rounded-lg">
                                                 <TrendingUp className="h-5 w-5 text-indigo-600 mb-1" />
-                                                <p className="text-xl font-bold text-gray-900">{githubData.github_score || 0}</p>
-                                                <p className="text-xs text-gray-500">GitHub Score</p>
+                                                <p className="text-xs text-gray-500 dark:text-slate-400 uppercase mb-1">GitHub Score</p>
+                                                <p className="text-xl font-bold text-gray-900 dark:text-slate-50">{githubData.github_score || 0}</p>
                                             </div>
                                         </div>
 
                                         {/* Followers / Following */}
                                         <div className="flex gap-4 text-sm">
                                             <div className="flex items-center gap-1">
-                                                <span className="font-semibold text-gray-900">{githubData.followers || 0}</span>
-                                                <span className="text-gray-500">followers</span>
+                                                <p className="text-sm text-gray-500 dark:text-slate-400">
+                                                    Followers: <span className="font-semibold text-gray-900 dark:text-slate-50">{githubData.followers || 0}</span>
+                                                </p>
                                             </div>
                                             <div className="flex items-center gap-1">
-                                                <span className="font-semibold text-gray-900">{githubData.following || 0}</span>
-                                                <span className="text-gray-500">following</span>
+                                                <p className="text-sm text-gray-500 dark:text-slate-400">
+                                                    Following: <span className="font-semibold text-gray-900 dark:text-slate-50">{githubData.following || 0}</span>
+                                                </p>
                                             </div>
                                         </div>
 
@@ -361,15 +393,15 @@ export default function DashboardPage() {
                                         {/* Top Repositories */}
                                         {githubData.repo_analysis && githubData.repo_analysis.length > 0 && (
                                             <div>
-                                                <p className="text-sm font-medium text-gray-700 mb-3">Top Repositories</p>
+                                                <p className="text-sm font-medium text-gray-700 dark:text-slate-300 mb-3">Top Repositories</p>
                                                 <div className="space-y-3 max-h-96 overflow-y-auto">
                                                     {githubData.repo_analysis.slice(0, 5).map((repo: any, idx: number) => (
-                                                        <div key={idx} className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors">
+                                                        <div key={idx} className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg border border-gray-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors">
                                                             <div className="flex justify-between items-start mb-2">
                                                                 <div className="flex-1">
-                                                                    <h4 className="font-semibold text-gray-900 text-sm">{repo.repo_name}</h4>
+                                                                    <h4 className="font-semibold text-gray-900 dark:text-slate-50 text-sm">{repo.repo_name}</h4>
                                                                     {repo.description && (
-                                                                        <p className="text-xs text-gray-600 mt-1">{repo.description}</p>
+                                                                        <p className="text-xs text-gray-600 dark:text-slate-400 mt-1">{repo.description}</p>
                                                                     )}
                                                                 </div>
                                                                 {repo.active_in_last_90_days && (
@@ -383,13 +415,13 @@ export default function DashboardPage() {
                                                                 ))}
                                                             </div>
 
-                                                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                                                            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-slate-400">
                                                                 <span className="flex items-center gap-1">
                                                                     <GitBranch className="h-3 w-3" />
                                                                     {repo.commits_last_90_days_estimated || 0} commits
                                                                 </span>
                                                                 {repo.project_type && (
-                                                                    <span className="text-blue-600">{repo.project_type}</span>
+                                                                    <span className="text-blue-600 dark:text-blue-400">{repo.project_type}</span>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -419,7 +451,7 @@ export default function DashboardPage() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3 }}
                     >
-                        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-xl h-full">
+                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl h-full dark:border dark:border-slate-800">
                             <CardHeader>
                                 <div className="flex justify-between items-center">
                                     <CardTitle className="flex items-center gap-2">
@@ -452,24 +484,24 @@ export default function DashboardPage() {
                                     <div className="space-y-6">
                                         {/* AI Profile Analysis */}
                                         {companyAIAnalysis && (
-                                            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
-                                                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                                    <Sparkles className="h-4 w-4 text-purple-600" />
+                                            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 p-4 rounded-lg border border-purple-200 dark:border-purple-900">
+                                                <h4 className="font-semibold text-gray-900 dark:text-slate-50 mb-3 flex items-center gap-2">
+                                                    <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                                                     AI Profile Analysis
                                                 </h4>
 
                                                 {companyAIAnalysis.overall_profile_summary && (
-                                                    <p className="text-sm text-gray-700 mb-3">{companyAIAnalysis.overall_profile_summary}</p>
+                                                    <p className="text-sm text-gray-700 dark:text-slate-300 mb-3">{companyAIAnalysis.overall_profile_summary}</p>
                                                 )}
 
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                     {/* Strengths */}
                                                     {companyAIAnalysis.profile_strengths?.length > 0 && (
-                                                        <div className="bg-white p-3 rounded-lg">
-                                                            <p className="text-xs font-semibold text-green-700 mb-2">💪 Strengths</p>
+                                                        <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
+                                                            <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-2">💪 Strengths</p>
                                                             <ul className="space-y-1">
                                                                 {companyAIAnalysis.profile_strengths.slice(0, 3).map((strength: string, idx: number) => (
-                                                                    <li key={idx} className="text-xs text-gray-600 flex items-start gap-1">
+                                                                    <li key={idx} className="text-xs text-gray-600 dark:text-slate-400 flex items-start gap-1">
                                                                         <span className="text-green-500 mt-0.5">✓</span>
                                                                         <span>{strength}</span>
                                                                     </li>
@@ -480,11 +512,11 @@ export default function DashboardPage() {
 
                                                     {/* Weaknesses */}
                                                     {companyAIAnalysis.profile_weaknesses?.length > 0 && (
-                                                        <div className="bg-white p-3 rounded-lg">
-                                                            <p className="text-xs font-semibold text-orange-700 mb-2">📈 Areas to Improve</p>
+                                                        <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-gray-200 dark:border-slate-700">
+                                                            <p className="text-xs font-semibold text-orange-700 dark:text-orange-400 mb-2">📈 Areas to Improve</p>
                                                             <ul className="space-y-1">
                                                                 {companyAIAnalysis.profile_weaknesses.slice(0, 3).map((weakness: string, idx: number) => (
-                                                                    <li key={idx} className="text-xs text-gray-600 flex items-start gap-1">
+                                                                    <li key={idx} className="text-xs text-gray-600 dark:text-slate-400 flex items-start gap-1">
                                                                         <span className="text-orange-500 mt-0.5">→</span>
                                                                         <span>{weakness}</span>
                                                                     </li>
@@ -504,18 +536,18 @@ export default function DashboardPage() {
                                                 )
 
                                                 return (
-                                                    <div key={idx} className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                                                    <div key={idx} className="bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
                                                         {/* Company Header */}
                                                         <div className="p-3 flex justify-between items-center">
                                                             <div className="flex-1">
-                                                                <p className="font-semibold text-gray-900">{match.company_name}</p>
-                                                                <p className="text-xs text-gray-500">
-                                                                    {match.match_percent}% match • {match.role} • {match.tier}
+                                                                <p className="font-semibold text-gray-900 dark:text-slate-50">{match.company_name}</p>
+                                                                <p className="text-xs text-gray-500 dark:text-slate-400">
+                                                                    {match.job_title} • {match.match_percent}% match • {match.role} • {match.tier}
                                                                 </p>
                                                             </div>
                                                             <Badge
                                                                 variant={match.eligible ? "default" : "outline"}
-                                                                className={match.eligible ? "bg-green-600 text-white" : "bg-red-50 text-red-700 border-red-200"}
+                                                                className={match.eligible ? "bg-green-600 text-white" : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800"}
                                                             >
                                                                 {match.eligible ? 'Eligible' : 'Not Eligible'}
                                                             </Badge>
@@ -523,32 +555,32 @@ export default function DashboardPage() {
 
                                                         {/* AI Insights */}
                                                         {aiInsight && (
-                                                            <div className="px-3 pb-3 space-y-2 border-t border-gray-200 pt-3 bg-white">
+                                                            <div className="px-3 pb-3 space-y-2 border-t border-gray-200 dark:border-slate-800 pt-3 bg-white dark:bg-slate-800">
                                                                 {/* Match Reasoning */}
                                                                 {aiInsight.match_reasoning && (
                                                                     <div>
-                                                                        <p className="text-xs font-medium text-blue-700 mb-1">🎯 Why You Match:</p>
-                                                                        <p className="text-xs text-gray-600">{aiInsight.match_reasoning}</p>
+                                                                        <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-1">🎯 Why You Match:</p>
+                                                                        <p className="text-xs text-gray-600 dark:text-slate-400">{aiInsight.match_reasoning}</p>
                                                                     </div>
                                                                 )}
 
                                                                 {/* Eligibility Explanation */}
                                                                 {aiInsight.eligibility_explanation && (
                                                                     <div>
-                                                                        <p className="text-xs font-medium text-gray-700 mb-1">
+                                                                        <p className="text-xs font-medium text-gray-700 dark:text-slate-300 mb-1">
                                                                             {match.eligible ? '✅ Eligibility:' : '❌ Not Eligible:'}
                                                                         </p>
-                                                                        <p className="text-xs text-gray-600">{aiInsight.eligibility_explanation}</p>
+                                                                        <p className="text-xs text-gray-600 dark:text-slate-400">{aiInsight.eligibility_explanation}</p>
                                                                     </div>
                                                                 )}
 
                                                                 {/* Improvement Suggestions */}
                                                                 {aiInsight.improvement_suggestions?.length > 0 && (
                                                                     <div>
-                                                                        <p className="text-xs font-medium text-purple-700 mb-1">💡 Suggestions:</p>
+                                                                        <p className="text-xs font-medium text-purple-700 dark:text-purple-400 mb-1">💡 Suggestions:</p>
                                                                         <ul className="space-y-1">
                                                                             {aiInsight.improvement_suggestions.map((suggestion: string, sidx: number) => (
-                                                                                <li key={sidx} className="text-xs text-gray-600 flex items-start gap-1">
+                                                                                <li key={sidx} className="text-xs text-gray-600 dark:text-slate-400 flex items-start gap-1">
                                                                                     <span>•</span>
                                                                                     <span>{suggestion}</span>
                                                                                 </li>
@@ -565,15 +597,15 @@ export default function DashboardPage() {
 
                                         {/* Top Priority Actions */}
                                         {companyAIAnalysis?.top_priority_actions?.length > 0 && (
-                                            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                                                <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2 text-sm">
-                                                    <Target className="h-4 w-4 text-blue-600" />
+                                            <div className="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-lg border border-blue-200 dark:border-blue-900">
+                                                <h4 className="font-semibold text-gray-900 dark:text-slate-50 mb-2 flex items-center gap-2 text-sm">
+                                                    <Target className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                                     Top Priority Actions
                                                 </h4>
                                                 <ul className="space-y-1.5">
                                                     {companyAIAnalysis.top_priority_actions.map((action: string, idx: number) => (
-                                                        <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
-                                                            <span className="text-blue-600 font-bold">{idx + 1}.</span>
+                                                        <li key={idx} className="text-sm text-gray-700 dark:text-slate-300 flex items-start gap-2">
+                                                            <span className="text-blue-600 dark:text-blue-400 font-bold">{idx + 1}.</span>
                                                             <span>{action}</span>
                                                         </li>
                                                     ))}
@@ -598,7 +630,7 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                 >
-                    <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-xl">
+                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl dark:border dark:border-slate-800">
                         <CardHeader>
                             <CardTitle>Your Skills</CardTitle>
                         </CardHeader>

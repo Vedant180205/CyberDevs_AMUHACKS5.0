@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from datetime import datetime, timedelta, timezone
 
@@ -5,8 +6,9 @@ from app.database import students_collection
 from app.utils.auth_dependency import get_current_user
 from app.models.student_model import StudentUpdate
 from app.services.github_service import analyze_github_profile
+
 from app.services.prs_service import calculate_prs
-from app.services.resume_service import analyze_resume
+from app.services.resume_service import process_resume_upload, analyze_resume_with_groq
 from app.database import companies_collection
 from app.services.company_match_service import match_student_with_companies
 
@@ -83,39 +85,133 @@ async def analyze_my_github(user=Depends(get_current_user)):
     return {"message": "GitHub analysis completed", "github_analysis": analysis}
 
 
-@router.post("/analyze/resume")
-async def analyze_student_resume(
+@router.post("/upload-resume")
+async def upload_resume(
     file: UploadFile = File(...),
     user=Depends(get_current_user)
 ):
     email = user["email"]
+    student = await students_collection.find_one({"email": email})
     
-    # Read file bytes
-    try:
-        contents = await file.read()
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid file")
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
 
-    # Analyze with Gemini
-    analysis_result = analyze_resume(contents, file.content_type)
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+
+    # Ensure upload directory exists
+    UPLOAD_DIR = "uploads/resumes/"
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
     
-    # Prepare update data
-    ats_score = analysis_result.get("ats_score", 0)
+    file_path = os.path.join(UPLOAD_DIR, f"{student['_id']}_{file.filename}")
     
-    # Update student profile
+    # Save PDF
+    with open(file_path, "wb") as buffer:
+        content = await file.read()
+        buffer.write(content)
+        
+    # Process Resume
+    try:
+        extraction_result = await process_resume_upload(file_path, str(student["_id"]))
+    except Exception as e:
+         raise HTTPException(status_code=500, detail=f"Extraction failed: {str(e)}")
+
+    # Create Resume Document
+    resume_data = {
+        "file_name": file.filename,
+        "uploaded_at": datetime.now(timezone.utc).isoformat(),
+        "raw_text": extraction_result["raw_text"],
+        "tables": extraction_result["tables"],
+        "images_extracted": extraction_result["images_extracted"],
+        "sections_found": [], # To be filled by AI later
+        "resume_score": 0,
+        "ats_score": 0,
+        "missing_sections": [],
+        "profile_resume_match_score": 0,
+        "profile_mismatches": [],
+        "suggestions": [],
+        "last_analyzed_at": None,
+        # Store contact info found via regex as validation metadata if needed
+        "contact_info": extraction_result["contact_info"] 
+    }
+
+    # Update Student
     await students_collection.update_one(
         {"email": email},
-        {"$set": {
-            "resume_analysis": analysis_result,
-            "ats_score": ats_score
-        }}
+        {"$set": {"resume": resume_data}}
+    )
+
+    return {
+        "message": "Resume uploaded successfully",
+        "file_name": file.filename,
+        "raw_text_preview": extraction_result["raw_text"][:200] + "...",
+        "images_extracted": extraction_result["images_extracted"],
+        "tables_extracted": len(extraction_result["tables"])
+    }
+
+
+@router.post("/analyze-resume")
+async def analyze_resume_endpoint(user=Depends(get_current_user)):
+    email = user["email"]
+    
+    # Fetch Student
+    student = await students_collection.find_one({"email": email})
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    resume_data = student.get("resume")
+    if not resume_data or not resume_data.get("raw_text"):
+        raise HTTPException(status_code=400, detail="No resume found. Please upload one first.")
+
+    # Call AI Service
+    try:
+        analysis_result = await analyze_resume_with_groq(student, resume_data["raw_text"])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI Analysis failed: {str(e)}")
+
+    # Update Student Document
+    update_data = {
+        "resume.resume_score": analysis_result.get("resume_score", 0),
+        "resume.ats_score": analysis_result.get("ats_score", 0),
+        "resume.missing_sections": analysis_result.get("missing_sections", []),
+        "resume.profile_mismatches": analysis_result.get("profile_mismatches", []),
+        "resume.suggestions": analysis_result.get("improvement_suggestions", []),
+        "resume.last_analyzed_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Store detected skills if any (optional, can merge with profile skills if wanted, but keeping separate for now)
+    
+    await students_collection.update_one(
+        {"email": email},
+        {"$set": update_data}
     )
 
     return {
         "message": "Resume analyzed successfully",
-        "ats_score": ats_score,
         "analysis": analysis_result
     }
+
+
+@router.get("/resume-analysis")
+async def get_resume_analysis(user=Depends(get_current_user)):
+    email = user["email"]
+    student = await students_collection.find_one({"email": email})
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    resume_data = student.get("resume")
+    if not resume_data:
+        return {"message": "No resume data found", "analysis": None}
+
+    return {
+        "resume_score": resume_data.get("resume_score", 0),
+        "ats_score": resume_data.get("ats_score", 0),
+        "missing_sections": resume_data.get("missing_sections", []),
+        "profile_mismatches": resume_data.get("profile_mismatches", []),
+        "suggestions": resume_data.get("suggestions", []),
+        "last_analyzed_at": resume_data.get("last_analyzed_at")
+    }
+
 
 
 @router.post("/calculate-prs")
@@ -160,7 +256,7 @@ async def company_match(user=Depends(get_current_user)):
     from app.services.groq_service import analyze_company_matches_with_groq
     
     try:
-        ai_analysis = analyze_company_matches_with_groq(student, match_result["matches"])
+        ai_analysis = await analyze_company_matches_with_groq(student, match_result["matches"])
     except Exception as e:
         # If AI analysis fails, still return matches but with error noted
         ai_analysis = {
@@ -211,7 +307,7 @@ async def analyze_github_detailed(user=Depends(get_current_user)):
 
     try:
         # Run Groq analysis
-        groq_analysis = analyze_github_with_groq(github_analysis)
+        groq_analysis = await analyze_github_with_groq(github_analysis)
         
         # Add timestamp
         groq_analysis["last_updated"] = datetime.now(timezone.utc).isoformat()

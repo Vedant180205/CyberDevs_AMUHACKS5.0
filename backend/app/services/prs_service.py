@@ -97,9 +97,15 @@ def calculate_prs(student: dict):
     else:
         language_score = 0
 
-    # ---------------- Resume ATS Score (0-20) ----------------
-    ats_score_raw = student.get("ats_score", 0) # 0-100
-    ats_score_component = int((ats_score_raw / 100) * 20)
+    # ---------------- Resume Scores (0-20) ----------------
+    # We split 20 points: 10 for Resume Quality, 10 for ATS Compatibility
+    resume_data = student.get("resume", {}) or {}
+    
+    resume_score_raw = resume_data.get("resume_score", 0) # 0-100
+    ats_score_raw = resume_data.get("ats_score", 0)       # 0-100
+    
+    resume_component = int((resume_score_raw / 100) * 10)
+    ats_component = int((ats_score_raw / 100) * 10)
 
     # ---------------- Final PRS (out of 100) ----------------
     # Updated Total Weightage:
@@ -109,8 +115,9 @@ def calculate_prs(student: dict):
     # Activity: 10
     # Project Diversity: 10
     # Language Diversity: 10
-    # ATS Score: 20
-    # TOTAL: 100 (No scaling needed if all components sum to 100)
+    # Resume Quality: 10
+    # ATS Score: 10
+    # TOTAL: 100
 
     prs_total = (
         github_score +
@@ -119,7 +126,8 @@ def calculate_prs(student: dict):
         activity_score +
         diversity_score +
         language_score +
-        ats_score_component
+        resume_component +
+        ats_component
     )
 
     breakdown = {
@@ -129,7 +137,8 @@ def calculate_prs(student: dict):
         "activity_score_10": activity_score,
         "project_diversity_score_10": diversity_score,
         "language_diversity_score_10": language_score,
-        "resume_ats_score_20": ats_score_component,
+        "resume_quality_score_10": resume_component,
+        "ats_compatibility_score_10": ats_component,
         "raw_total_100": prs_total
     }
 

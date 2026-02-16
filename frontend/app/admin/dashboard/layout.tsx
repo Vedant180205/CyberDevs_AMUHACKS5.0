@@ -13,6 +13,7 @@ import {
     Users
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ModeToggle } from '@/components/mode-toggle'
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter()
@@ -23,14 +24,15 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
         setIsMounted(true)
         const role = localStorage.getItem('role')
         if (role !== 'admin') {
-            router.push('/admin/login')
+            router.replace('/admin/login')
         }
     }, [router])
 
     const handleLogout = () => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('role')
-        router.push('/admin/login')
+        // Use the auth utility to clear everything
+        const { clearAuth } = require('@/lib/auth')
+        clearAuth()
+        router.replace('/')
     }
 
     if (!isMounted) return null
@@ -43,12 +45,12 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
     ]
 
     return (
-        <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+        <div className="flex h-screen bg-gray-100 dark:bg-slate-950 transition-colors duration-300">
             {/* Sidebar */}
-            <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
-                <div className="p-6 flex items-center space-x-2 border-b border-gray-200 dark:border-gray-700">
+            <aside className="w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 flex flex-col shadow-sm">
+                <div className="p-6 flex items-center space-x-2 border-b border-gray-200 dark:border-slate-800">
                     <ShieldCheck className="h-6 w-6 text-red-600" />
-                    <span className="text-xl font-bold text-gray-900 dark:text-white">CampusIQ Admin</span>
+                    <span className="text-xl font-bold text-gray-900 dark:text-slate-50">CampusIQ Admin</span>
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -59,9 +61,9 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${isActive
-                                        ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400'
-                                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
+                                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${isActive
+                                    ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 shadow-sm'
+                                    : 'text-gray-600 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                                     }`}
                             >
                                 <Icon className="h-5 w-5" />
@@ -71,10 +73,10 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="p-4 border-t border-gray-200 dark:border-slate-800">
                     <Button
                         variant="ghost"
-                        className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        className="w-full justify-start text-red-600 dark:text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 dark:hover:text-red-300"
                         onClick={handleLogout}
                     >
                         <LogOut className="h-5 w-5 mr-3" />
@@ -83,8 +85,10 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <main className="flex-1 overflow-auto p-8">
+            <main className="flex-1 overflow-auto p-8 relative bg-gray-50 dark:bg-slate-950">
+                <div className="absolute top-4 right-4 z-50">
+                    <ModeToggle />
+                </div>
                 {children}
             </main>
         </div>

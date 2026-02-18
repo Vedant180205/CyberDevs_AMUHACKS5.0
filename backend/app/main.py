@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import auth_routes, student_routes, admin_routes
+from app.routes import auth_routes, student_routes, admin_routes, nlq_routes
 
 app = FastAPI(title="CampusIQ Backend")
 
@@ -18,6 +18,7 @@ app.add_middleware(
 app.include_router(auth_routes.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(student_routes.router, prefix="/api/student", tags=["Student"])
 app.include_router(admin_routes.router, prefix="/api/admin", tags=["Admin"])
+app.include_router(nlq_routes.router, prefix="/api/admin", tags=["Admin"])
 
 
 @app.get("/")

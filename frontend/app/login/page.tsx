@@ -85,7 +85,7 @@ export default function LoginPage() {
       }
 
     } catch (err: any) {
-      console.error("Auth Error:", err)
+      // Intentionally omitting console.error to prevent Next.js Dev Overlay from blocking the UI on 401s
       const detail = err.response?.data?.detail
       // Handle array of errors (Pydantic validation)
       if (Array.isArray(detail)) {

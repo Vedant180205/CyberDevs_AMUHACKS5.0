@@ -338,3 +338,72 @@ async def generate_batch_recommendations(batch_stats: list) -> dict:
     except Exception as e:
         print(f"Groq Batch Analysis Error: {e}")
         return {"error": "Failed to generate recommendations", "details": str(e)}
+
+async def generate_dynamic_report_summary_with_groq(branch: str, stats: dict, gap_data: list, comp_buckets: dict) -> dict:
+    """
+    Uses Groq to generate a comprehensive AI Strategy and Placement Forecast based on raw DB data.
+    """
+    prompt = f"""
+    You are an expert Placement Officer writing Part 2 (Extended AI Insights) of the {branch} Branch Placement Readiness Report.
+    
+    Here is the exact aggregated Database Data for this branch:
+    - Overview: {stats.get('total', 0)} Students, {stats.get('avg_prs', 0)}/100 Avg PRS Score.
+    - Risk Breakdown: {stats.get('red', 0)} At-Risk, {stats.get('yellow', 0)} Moderate, {stats.get('green', 0)} Strong/Ready.
+    - Gap Analysis vs Target Benchmarks: {json.dumps(gap_data)}
+    - Component Scores By Year: {json.dumps(comp_buckets)}
+    
+    Write a highly detailed, dynamic JSON response analyzing this raw data.
+    
+    Response Format (Strict JSON):
+    {{
+        "executive_summary": "A professional 3-sentence summary of the branch's readiness.",
+        "market_readiness_analysis": "Detailed 1-paragraph analysis of how this branch currently aligns with 2024-25 Industry Hiring Trends.",
+        "primary_strengths": ["string", "string"],
+        "primary_weaknesses": ["string", "string"],
+        "recommended_roles": ["string", "string"],
+        "role_suitability_matrix": [
+            {{
+                "role": "e.g. Fullstack Developer",
+                "suitability_score": "0-100",
+                "key_requirement": "e.g. React & Node.js proficiency",
+                "gap_found": "e.g. 40% lack backend experience"
+            }}
+        ],
+        "immediate_tpo_roadmap": [
+             {{
+                "month": "e.g. Month 1",
+                "action": "e.g. Compulsory Resume Lockdown",
+                "goal": "e.g. 100% completion of LinkedIn URLs"
+             }}
+        ],
+        "targeted_interventions": [
+            {{
+                "year": "e.g. 1st Year",
+                "training_programme": "e.g. GitHub & Projects Bootcamp",
+                "rationale": "e.g. Avg GitHub score is 17.6 (target 40).",
+                "expected_impact": "e.g. +8 PRS (estimated)"
+            }}
+        ]
+    }}
+    IMPORTANT: Respond ONLY with valid JSON. No markdown.
+    """
+    try:
+        chat_completion = await client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model=GROQ_MODEL,
+            temperature=0.3,
+            max_tokens=1500,
+        )
+        response_text = chat_completion.choices[0].message.content.strip()
+        try:
+            return json.loads(response_text)
+        except json.JSONDecodeError:
+            if "```json" in response_text:
+                json_str = response_text.split("```json")[1].split("```")[0].strip()
+                return json.loads(json_str)
+            elif "```" in response_text:
+                json_str = response_text.split("```")[1].split("```")[0].strip()
+                return json.loads(json_str)
+            return {"error": "Invalid format"}
+    except Exception as e:
+        return {"error": str(e)}

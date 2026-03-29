@@ -11,7 +11,8 @@ import {
     Settings,
     ShieldCheck,
     Users,
-    Search
+    Search,
+    FileText
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/mode-toggle'
@@ -43,6 +44,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
         { name: 'Skills Analytics', href: '/admin/dashboard/analytics', icon: BarChart3 },
         { name: 'AI Insights', href: '/admin/dashboard/insights', icon: Bot },
         { name: 'NLQ Query', href: '/admin/dashboard/nlq', icon: Search },
+        { name: 'Reports', href: '/admin/dashboard/reports', icon: FileText },
     ]
 
     return (

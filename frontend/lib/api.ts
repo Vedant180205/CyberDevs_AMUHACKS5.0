@@ -42,7 +42,11 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
-        if (error.response && error.response.status === 401) {
+        const originalRequest = error.config;
+        // Don't redirect if the original request was to the login endpoint itself
+        const isLoginRequest = originalRequest && originalRequest.url && originalRequest.url.includes('/api/auth/login');
+        
+        if (error.response && error.response.status === 401 && !isLoginRequest) {
             // Redirect to login page if authorized
             if (typeof window !== 'undefined') {
                 // Clear both localStorage and Cookies
